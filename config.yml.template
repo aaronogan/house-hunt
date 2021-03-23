@@ -1,0 +1,6 @@
+apis:
+  rapidapi:
+    realtor-free:
+      x-rapidapi-key: YOUR-API-KEY
+      x-rapidapi-host: realtor-com-free.p.rapidapi.com
+
