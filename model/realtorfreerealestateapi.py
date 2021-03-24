@@ -1,12 +1,12 @@
-import model.RapidApi
-import model.RealEstateApi
+from model.rapidapi import RapidApi
+from model.realestateapi import RealEstateApi
 
 class RealtorFreeRealEstateApi(RapidApi, RealEstateApi):
     def __init__(self, config):
         RapidApi.__init__(self, config)
         RealEstateApi.__init__(self)
 
-    def get_listings(self):
+    def http_get_listings(self):
         base_url = self.config['base-url']
         endpoint_url = ''.join((base_url, "properties"))
 
