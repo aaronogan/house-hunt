@@ -1,8 +1,5 @@
 from model.realestateapi import RealEstateSearch
 
-def test_always_passes():
-    assert True
-
 def test_get_search_params_city():
     search = RealEstateSearch()
     search.set_city("Denver")
