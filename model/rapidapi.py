@@ -11,7 +11,7 @@ class RapidApi:
         return self.config['headers']
 
     def http_get(self, endpoint_name='', params={}):
-        endpoint_url = self.get_endpoint_url()
+        endpoint_url = self.get_endpoint_url(endpoint_name)
         headers = self.get_headers()
 
         response = requests.request("GET", endpoint_url, headers=headers, params=params)
