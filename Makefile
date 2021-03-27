@@ -1,3 +1,6 @@
+mongodb-install:
+	sh scripts/mongodb-setup.sh
+
 init:
 	pip3 install -r requirements.txt
 

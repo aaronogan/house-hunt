@@ -4,8 +4,8 @@
 this is a project to help automate a complicated house hunt
 
 ### general workflow
-1. TODO gather listings
-    1. TODO spark pipeline to call a real estate api based on a saved search
+1. gather listings
+    1. spark pipeline to call a real estate api based on a saved search
     1. TODO save data to mongodb
 1. TODO "code" listings
     1. TODO simple web app to browse listings from mongodb
