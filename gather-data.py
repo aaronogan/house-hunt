@@ -1,6 +1,7 @@
+import json
 import yaml
-import pyspark
 from pathlib import Path
+from pyspark.sql import SparkSession
 from model.rapidapi import RapidApi
 
 config_path = Path(__file__).parent / "config.yml"
@@ -12,6 +13,7 @@ saved_search = {
     "beds_min": 4,
     "baths_min": 2,
 }
+dummy_json_path = Path(__file__).parent / "for-sale.json"
 
 def get_config():
     with open(config_path, 'r') as stream:
@@ -21,12 +23,37 @@ def get_config():
             print(ex)
             return None
 
+def write_dummy_json(json_data):
+    with open(dummy_json_path, 'w') as output_file:
+        json.dump(json_data, output_file)
 
-if __name__ == "__main__":
+def read_dummy_json():
+    with open(dummy_json_path, 'r') as input_file:
+        return json.load(input_file)
+
+def get_from_api():
     config = get_config()
     realtor_com_config = config['apis']['rapidapi']['realtor-com-real-estate']
     rapid_api = RapidApi(realtor_com_config)
 
-    response = rapid_api.http_get('for-sale', saved_search)
-    print(response)
+    return rapid_api.http_get('for-sale', saved_search)
+
+def get_from_api_and_cache_locally():
+    response = get_from_api()
+    write_dummy_json(response)
+
+
+if __name__ == "__main__":
+
+    # currently reading from dummy json
+    # TODO add command line options to control where we pull data from
+    spark = SparkSession \
+            .builder \
+            .appName("house-hunt") \
+            .config("spark.mongodb.input.uri", "mongodb://127.0.0.1/listings.coll") \
+            .config("spark.mongodb.output.uri", "mongodb://127.0.0.1/listings.coll") \
+            .getOrCreate()
+
+    listings = spark.read.json(str(dummy_json_path))
+    print(listings.show())
 
