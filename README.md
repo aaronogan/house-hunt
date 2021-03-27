@@ -3,9 +3,6 @@
 ## intro
 this is a project to help automate a complicated house hunt
 
-### spark pipelines
-1. gather real estate listings based on a saved search
-
 ### general workflow
 1. TODO gather listings
     1. TODO spark pipeline to call a real estate api based on a saved search
