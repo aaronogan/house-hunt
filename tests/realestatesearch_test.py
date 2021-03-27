@@ -1,4 +1,4 @@
-from model.realestateapi import RealEstateSearch
+from model.realestatesearch import RealEstateSearch
 
 def test_get_search_params_city():
     search = RealEstateSearch()
