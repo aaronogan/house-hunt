@@ -1,8 +1,9 @@
 import json
 import yaml
+from datetime import datetime
 from pathlib import Path
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import explode
+from pyspark.sql.functions import explode, lit
 from model.rapidapi import RapidApi
 
 config_path = Path(__file__).parent / "config.yml"
@@ -87,11 +88,14 @@ if __name__ == "__main__":
 
             "results.community",
             "results.description.sold_price",
+            "created",
     ]
 
     for_sale = spark.read.json(str(dummy_json_path)) \
             .select("data") \
             .withColumn("results", explode("data.results")) \
+            .withColumn("created", lit(datetime.utcnow().replace(microsecond=0).isoformat())) \
             .select(select_columns)
+
     print(for_sale.show(10, False))
     
