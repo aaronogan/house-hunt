@@ -56,10 +56,42 @@ if __name__ == "__main__":
             .getOrCreate()
     sc = spark.sparkContext
 
+    select_columns = [
+            "results.listing_id",
+            "results.property_id",
+
+            "results.status",
+            "results.list_date",
+            "results.last_update_date",
+            "results.list_price",
+
+            "results.description.type",
+            "results.description.sub_type",
+            "results.description.year_built",
+            "results.description.beds",
+            "results.description.baths",
+            "results.description.sqft",
+            "results.description.stories",
+            "results.description.garage",
+
+            "results.location.address.line",
+            "results.location.address.city",
+            "results.location.address.state_code",
+            "results.location.county.name",
+            "results.location.address.postal_code",
+            "results.location.address.coordinate.lat",
+            "results.location.address.coordinate.lon",
+
+            "results.primary_photo.href",
+            "results.permalink",
+
+            "results.community",
+            "results.description.sold_price",
+    ]
 
     for_sale = spark.read.json(str(dummy_json_path)) \
             .select("data") \
             .withColumn("results", explode("data.results")) \
-            .select("results.community", "results.description.baths", "results.description.beds", "results.description.garage", "results.description.sqft", "results.description.sold_price", "results.description.stories", "results.description.type", "results.description.sub_type", "results.description.year_built", "results.list_date", "results.list_price", "results.listing_id", "results.location.address.coordinate.lat", "results.location.address.coordinate.lon", "results.location.address.line", "results.location.address.city", "results.location.address.state_code", "results.location.address.postal_code", "results.location.county.name", "results.property_id", "results.status", "results.primary_photo.href", "results.permalink", "results.last_update_date")
+            .select(select_columns)
     print(for_sale.show(10, False))
     
