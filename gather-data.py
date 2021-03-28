@@ -2,6 +2,7 @@ import json
 import yaml
 from pathlib import Path
 from pyspark.sql import SparkSession
+from pyspark.sql.functions import explode
 from model.rapidapi import RapidApi
 
 config_path = Path(__file__).parent / "config.yml"
@@ -53,7 +54,12 @@ if __name__ == "__main__":
             .config("spark.mongodb.input.uri", "mongodb://127.0.0.1/listings.coll") \
             .config("spark.mongodb.output.uri", "mongodb://127.0.0.1/listings.coll") \
             .getOrCreate()
+    sc = spark.sparkContext
 
-    listings = spark.read.json(str(dummy_json_path))
-    print(listings.show())
 
+    for_sale = spark.read.json(str(dummy_json_path)) \
+            .select("data") \
+            .withColumn("results", explode("data.results")) \
+            .select("results.community", "results.description.baths", "results.description.beds", "results.description.garage", "results.description.sqft", "results.description.sold_price", "results.description.stories", "results.description.type", "results.description.sub_type", "results.description.year_built", "results.list_date", "results.list_price", "results.listing_id", "results.location.address.coordinate.lat", "results.location.address.coordinate.lon", "results.location.address.line", "results.location.address.city", "results.location.address.state_code", "results.location.address.postal_code", "results.location.county.name", "results.property_id", "results.status", "results.primary_photo.href", "results.permalink", "results.last_update_date")
+    print(for_sale.show(10, False))
+    
