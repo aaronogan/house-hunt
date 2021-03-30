@@ -52,8 +52,8 @@ if __name__ == "__main__":
     spark = SparkSession \
             .builder \
             .appName("house-hunt") \
-            .config("spark.mongodb.input.uri", "mongodb://127.0.0.1/listings.coll") \
-            .config("spark.mongodb.output.uri", "mongodb://127.0.0.1/listings.coll") \
+            .config("spark.mongodb.output.uri", "mongodb://127.0.0.1/") \
+            .config("spark.jars.packages", "org.mongodb.spark:mongo-spark-connector_2.12:3.0.1") \
             .getOrCreate()
     sc = spark.sparkContext
 
@@ -96,6 +96,12 @@ if __name__ == "__main__":
             .withColumn("results", explode("data.results")) \
             .withColumn("created", lit(datetime.utcnow().replace(microsecond=0).isoformat())) \
             .select(select_columns)
+
+    for_sale.write.format("com.mongodb.spark.sql") \
+            .mode("append") \
+            .option("database", "house-hunt") \
+            .option("collection", "for_sale") \
+            .save()
 
     print(for_sale.show(10, False))
     
