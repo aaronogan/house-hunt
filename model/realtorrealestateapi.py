@@ -11,7 +11,7 @@ class RealtorRealEstateApi(RapidApi, RealEstateApi):
         endpoint_url = self.get_endpoint_url("for-sale")
         headers = self.config['headers']
 
-        querystring = search.get()
+        querystring = search.to_json()
         json_response = self.http_get(endpoint_url, querystring)
 
         if json_response['status'] == 200:

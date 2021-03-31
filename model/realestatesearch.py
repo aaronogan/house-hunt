@@ -1,41 +1,44 @@
-
 class RealEstateSearch:
+    def __init__(self, search_json={}):
+        self.search_dict = dict(search_json)
+
+    def to_json(self):
+        return self.search_dict
+
+
+class RealEstateSearchBuilder:
+
     def __init__(self):
-        self.city = None
-        self.state = None
-        self.skip = None
-        self.take = None
+        self.dict = dict({})
+
+    def __getitem__(self, key):
+        if (key not in self.dict):
+            raise KeyError
+        return self.dict[key]
+
+    def __setitem__(self, key, value):
+        self.dict[key] = value
+
+    def set_search(self, search_json):
+        self.dict = dict(search_json)
+        return self
 
     def set_city(self, city):
-        self.city = city
+        self.dict['city'] = city
         return self
 
     def set_state(self, state_postal_code):
-        self.state = state_postal_code
+        self.dict['state'] = state_postal_code
         return self
 
     def set_skip(self, skip):
-        self.skip = skip
+        self.dict['offset'] = skip
         return self
 
     def set_take(self, take):
-        self.take = take
+        self.dict['limit'] = take
         return self
 
-    def get(self):
-        params = {}
-
-        if (self.city != None):
-            params['city'] = self.city
-
-        if (self.state != None):
-            params['state'] = self.state
-
-        if (self.skip != None):
-            params['skip'] = str(self.skip)
-
-        if (self.take != None):
-            params['take'] = str(self.take)
-
-        return params
+    def build(self):
+        return RealEstateSearch(self.dict)
 
