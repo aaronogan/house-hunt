@@ -8,17 +8,21 @@ class RealEstateSearch:
 
     def set_city(self, city):
         self.city = city
+        return self
 
     def set_state(self, state_postal_code):
         self.state = state_postal_code
+        return self
 
     def set_skip(self, skip):
         self.skip = skip
+        return self
 
     def set_take(self, take):
         self.take = take
+        return self
 
-    def get_search_params(self):
+    def get(self):
         params = {}
 
         if (self.city != None):

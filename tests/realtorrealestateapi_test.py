@@ -31,7 +31,7 @@ class RealtorRealEstateApiWrapper(RealtorRealEstateApi):
     def http_get(self, endpoint_name='', params={}):
         return sample_response
 
-def test_returns_listings():
+def test_returns_listing_type():
     real_estate_api = RealtorRealEstateApiWrapper(sample_api_config)
     real_estate_search = RealEstateSearch()
     listings = real_estate_api.http_get_listings(real_estate_search)

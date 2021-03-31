@@ -8,18 +8,10 @@ class RealtorRealEstateApi(RapidApi, RealEstateApi):
         RealEstateApi.__init__(self)
 
     def http_get_listings(self, search):
-        base_url = self.config['base-url']
-        endpoint_url = ''.join((base_url, "properties"))
-
+        endpoint_url = self.get_endpoint_url("for-sale")
         headers = self.config['headers']
 
-        querystring = {
-            "city": "Denver",
-            "state_code": "CO",
-            "offset": "0",
-            "limit": "15"
-        }
-
+        querystring = search.get()
         json_response = self.http_get(endpoint_url, querystring)
 
         if json_response['status'] == 200:

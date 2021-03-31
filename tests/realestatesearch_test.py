@@ -1,36 +1,32 @@
 from model.realestatesearch import RealEstateSearch
 
 def test_get_search_params_city():
-    search = RealEstateSearch()
-    search.set_city("Denver")
+    search = RealEstateSearch() \
+        .set_city("Denver") \
+        .get()
 
-    params = search.get_search_params()
-
-    assert "Denver" == params['city']
+    assert "Denver" == search['city']
 
 def test_get_search_params_state():
-    search = RealEstateSearch()
-    search.set_state("CO")
+    search = RealEstateSearch() \
+        .set_state("CO") \
+        .get()
 
-    params = search.get_search_params()
-
-    assert "CO" == params['state']
+    assert "CO" == search['state']
 
 def test_get_search_params_skip():
-    search = RealEstateSearch()
-    search.set_skip(9)
-
-    params = search.get_search_params()
+    search = RealEstateSearch() \
+        .set_skip(9) \
+        .get()
 
     # api expects string, not a typo
-    assert "9" == params['skip']
+    assert "9" == search['skip']
 
 def test_get_search_params_take():
-    search = RealEstateSearch()
-    search.set_take(3)
-
-    params = search.get_search_params()
+    search = RealEstateSearch() \
+        .set_take(3) \
+        .get()
 
     # api expects string, not a typo
-    assert "3" == params['take']
+    assert "3" == search['take']
 
