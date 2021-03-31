@@ -5,21 +5,22 @@ from datetime import datetime
 from pathlib import Path
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import explode, lit
-from model.rapidapi import RapidApi
+from model.realtorrealestateapi import RealtorRealEstateApi
+from model.realestatesearch import RealEstateSearch
 
 config_path = Path(__file__).parent / "config.yml"
 arg_parser = ArgumentParser()
 arg_parser.add_argument("-f", "--file", help="Run in local mode, read data from json file rather than calling API.")
 arg_parser.add_argument("-c", "--cache", help="Run in API mode, but cache response to this file.")
 
-saved_search = {
+saved_search = RealEstateSearch({
     "city": "Denver",
     "state_code": "CO",
     "offset": 0,
     "limit": 200,
     "beds_min": 4,
     "baths_min": 2,
-}
+})
 
 def get_config():
     with open(config_path, 'r') as stream:
@@ -36,9 +37,9 @@ def write_dummy_json(file_path, json_data):
 def get_from_api():
     config = get_config()
     realtor_com_config = config['apis']['rapidapi']['realtor-com-real-estate']
-    rapid_api = RapidApi(realtor_com_config)
+    realtor_api = RealtorRealEstateApi(realtor_com_config)
 
-    return rapid_api.http_get('for-sale', saved_search)
+    return realtor_api.http_get_listings(saved_search)
 
 
 if __name__ == "__main__":
