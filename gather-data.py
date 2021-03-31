@@ -10,8 +10,8 @@ from model.realestatesearch import RealEstateSearch
 
 config_path = Path(__file__).parent / "config.yml"
 arg_parser = ArgumentParser()
-arg_parser.add_argument("-f", "--file", help="Run in local mode, read data from json file rather than calling API.")
-arg_parser.add_argument("-c", "--cache", help="Run in API mode, but cache response to this file.")
+arg_parser.add_argument("-f", "--file", required=True, help="File in which API results are cached.")
+arg_parser.add_argument("-l", "--local-only", action='store_true', help="Don't call the remote API, just use the source file (requires use of --file).")
 
 saved_search = RealEstateSearch({
     "city": "Denver",
@@ -53,19 +53,11 @@ if __name__ == "__main__":
             .getOrCreate()
     sc = spark.sparkContext
 
-    for_sale = None
-    if (args['file'] != None):
-        for_sale = spark.read.json(args['file'])
-    else:
+    if (args['local_only'] == False):
         response = get_from_api()
+        write_dummy_json(args['file'], response)
 
-        if (args['cache'] != None):
-            write_dummy_json(args['cache'], response)
-
-        reponse_rdd = sc.parallelize([response])
-        for_sale = spark.read.json(response_rdd)
-
-    for_sale = for_sale \
+    for_sale = spark.read.json(args['file']) \
             .select("data") \
             .withColumn("results", explode("data.results")) \
             .withColumn("created", lit(datetime.utcnow().replace(microsecond=0).isoformat()))

@@ -19,5 +19,5 @@ class RapidApi:
         if response.status_code == 200:
             return response.json()
         else:
-            raise Exception("There was a problem retrieving data", endpoint_url, headers, params)
+            raise Exception("There was a problem retrieving data", endpoint_url, headers, params, response)
 
