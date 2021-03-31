@@ -1,5 +1,6 @@
 import json
 import yaml
+from argparse import ArgumentParser
 from datetime import datetime
 from pathlib import Path
 from pyspark.sql import SparkSession
@@ -7,6 +8,10 @@ from pyspark.sql.functions import explode, lit
 from model.rapidapi import RapidApi
 
 config_path = Path(__file__).parent / "config.yml"
+arg_parser = ArgumentParser()
+arg_parser.add_argument("-f", "--file", help="Run in local mode, read data from json file rather than calling API.")
+arg_parser.add_argument("-c", "--cache", help="Run in API mode, but cache response to this file.")
+
 saved_search = {
     "city": "Denver",
     "state_code": "CO",
@@ -15,7 +20,6 @@ saved_search = {
     "beds_min": 4,
     "baths_min": 2,
 }
-dummy_json_path = Path(__file__).parent / "for-sale.json"
 
 def get_config():
     with open(config_path, 'r') as stream:
@@ -25,13 +29,9 @@ def get_config():
             print(ex)
             return None
 
-def write_dummy_json(json_data):
-    with open(dummy_json_path, 'w') as output_file:
+def write_dummy_json(file_path, json_data):
+    with open(file_path, 'w') as output_file:
         json.dump(json_data, output_file)
-
-def read_dummy_json():
-    with open(dummy_json_path, 'r') as input_file:
-        return json.load(input_file)
 
 def get_from_api():
     config = get_config()
@@ -40,15 +40,10 @@ def get_from_api():
 
     return rapid_api.http_get('for-sale', saved_search)
 
-def get_from_api_and_cache_locally():
-    response = get_from_api()
-    write_dummy_json(response)
-
 
 if __name__ == "__main__":
+    args = vars(arg_parser.parse_args())
 
-    # currently reading from dummy json
-    # TODO add command line options to control where we pull data from
     spark = SparkSession \
             .builder \
             .appName("house-hunt") \
@@ -56,6 +51,23 @@ if __name__ == "__main__":
             .config("spark.jars.packages", "org.mongodb.spark:mongo-spark-connector_2.12:3.0.1") \
             .getOrCreate()
     sc = spark.sparkContext
+
+    for_sale = None
+    if (args['file'] != None):
+        for_sale = spark.read.json(args['file'])
+    else:
+        response = get_from_api()
+
+        if (args['cache'] != None):
+            write_dummy_json(args['cache'], response)
+
+        reponse_rdd = sc.parallelize([response])
+        for_sale = spark.read.json(response_rdd)
+
+    for_sale = for_sale \
+            .select("data") \
+            .withColumn("results", explode("data.results")) \
+            .withColumn("created", lit(datetime.utcnow().replace(microsecond=0).isoformat()))
 
     select_columns = [
             "results.listing_id",
@@ -90,12 +102,7 @@ if __name__ == "__main__":
             "results.description.sold_price",
             "created",
     ]
-
-    for_sale = spark.read.json(str(dummy_json_path)) \
-            .select("data") \
-            .withColumn("results", explode("data.results")) \
-            .withColumn("created", lit(datetime.utcnow().replace(microsecond=0).isoformat())) \
-            .select(select_columns)
+    for_sale = for_sale.select(select_columns)
 
     for_sale.write.format("com.mongodb.spark.sql") \
             .mode("append") \
@@ -104,4 +111,4 @@ if __name__ == "__main__":
             .save()
 
     print(for_sale.show(10, False))
-    
+
