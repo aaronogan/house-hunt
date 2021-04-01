@@ -1,3 +1,7 @@
 pyyaml
 pytest
+requests
+ipyleaflet
+numpy
+scikit-learn
 
