@@ -50,7 +50,6 @@ class ForSale(db.Document):
 @app.route('/')
 def list():
     listings = ForSale.objects().all()
-    print(listings)
     return render_template('list.html', listings=listings)
 
 if __name__ == '__main__':

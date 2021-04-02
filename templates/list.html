@@ -12,9 +12,10 @@
   <body>
     <div class="container-fluid">
       <h1>house-hunt</h1>
-      <table class="table table-bordered table-hover">
+      <table class="table table-bordered table-sm table-hover">
         <thead>
           <tr>
+            <th scope="col">&nbsp;</th>
             <th scope="col">&nbsp;</th>
             <th scope="col">listing</th>
             <th scope="col">stats</th>
@@ -25,6 +26,15 @@
         <tbody>
           {% for listing in listings %}
           <tr>
+            <th scope="row">
+              <form>
+                <div class="list-group">
+                  <button type="button" class="list-group-item list-group-item-action active">Unset</button>
+                  <button type="button" class="list-group-item list-group-item-action">Ideal</button>
+                  <button type="button" class="list-group-item list-group-item-action">Not Ideal</button>
+                </div>
+              </form>
+            </th>
             <td>
               <img src="{{listing.href}}" width="250" height="150" />
             </td>
@@ -41,11 +51,11 @@
             </th>
             <td>
               <ul class="list-group">
-                <li class="list-group-item">bd: {{listing.beds}}</li>
-                <li class="list-group-item">ba: {{listing.baths}}</li>
-                <li class="list-group-item">ga: {{listing.garage}}</li>
-                <li class="list-group-item">sq: {{listing.sqft}}</li>
-                <li class="list-group-item">st: {{listing.stories}}</li>
+                <li class="list-group-item">{{listing.beds}} bed</li>
+                <li class="list-group-item">{{listing.baths}} bath</li>
+                <li class="list-group-item">{{listing.garage}} garage</li>
+                <li class="list-group-item">{{listing.stories}} stories</li>
+                <li class="list-group-item">{{listing.sqft}} sqft</li>
               </ul>
             </td>
             <td>
