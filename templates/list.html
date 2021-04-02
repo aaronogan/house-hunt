@@ -8,6 +8,12 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
     <title>house-hunt</title>
+
+    <style>
+      .list-group button:hover {
+        cursor: pointer;
+      }
+    </style>
   </head>
   <body>
     <div class="container-fluid">
@@ -15,7 +21,8 @@
       <table class="table table-bordered table-sm table-hover">
         <thead>
           <tr>
-            <th scope="col">&nbsp;</th>
+            <th scope="col">coding</th>
+            <th scope="col">prediction</th>
             <th scope="col">&nbsp;</th>
             <th scope="col">listing</th>
             <th scope="col">stats</th>
@@ -35,10 +42,13 @@
                 </div>
               </form>
             </th>
+            <td>{{0}}</td>
             <td>
-              <img src="{{listing.href}}" width="250" height="150" />
+              <a href="https://realtor.com/realestateandhomes-detail/{{listing.permalink}}" target="_blank">
+                <img src="{{listing.href}}" width="375" height="225" />
+              </a>
             </td>
-            <th scope="row">
+            <td>
               <ul class="list-group">
                 <li class="list-group-item">
                   <a href="https://realtor.com/realestateandhomes-detail/{{listing.permalink}}" target="_blank">
@@ -48,7 +58,7 @@
                 <li class="list-group-item">{{listing.list_date}}</li>
                 <li class="list-group-item">{{listing.list_price}}</li>
               </ul>
-            </th>
+            </td>
             <td>
               <ul class="list-group">
                 <li class="list-group-item">{{listing.beds}} bed</li>
