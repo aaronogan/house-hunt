@@ -4,4 +4,6 @@ requests
 ipyleaflet
 numpy
 scikit-learn
+flask
+flask-mongoengine
 
