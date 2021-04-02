@@ -13,21 +13,49 @@
     <div class="container-fluid">
       <h1>house-hunt</h1>
       <table class="table table-bordered table-hover">
-        <thead class="">
+        <thead>
           <tr>
-            <th scope="col">listing_id</th>
-            <th scope="col">list_price</th>
-            <th scope="col">beds</th>
-            <th scope="col">baths</th>
+            <th scope="col">&nbsp;</th>
+            <th scope="col">listing</th>
+            <th scope="col">stats</th>
+            <th scope="col">type</th>
+            <th scope="col">address</th>
           </tr>
         </thead>
         <tbody>
           {% for listing in listings %}
           <tr>
-            <th scope="row">{{listing['listing_id']}}</th>
-            <td>{{listing['list_price']}}</td>
-            <td>{{listing['beds']}}</td>
-            <td>{{listing['baths']}}</td>
+            <td>
+              <img src="{{listing.href}}" width="250" height="150" />
+            </td>
+            <th scope="row">
+              <ul class="list-group">
+                <li class="list-group-item">
+                  <a href="https://realtor.com/realestateandhomes-detail/{{listing.permalink}}" target="_blank">
+                    {{listing.listing_id}}
+                  </a>
+                </li>
+                <li class="list-group-item">{{listing.list_date}}</li>
+                <li class="list-group-item">{{listing.list_price}}</li>
+              </ul>
+            </th>
+            <td>
+              <ul class="list-group">
+                <li class="list-group-item">bd: {{listing.beds}}</li>
+                <li class="list-group-item">ba: {{listing.baths}}</li>
+                <li class="list-group-item">ga: {{listing.garage}}</li>
+                <li class="list-group-item">sq: {{listing.sqft}}</li>
+                <li class="list-group-item">st: {{listing.stories}}</li>
+              </ul>
+            </td>
+            <td>
+              <div>{{listing.type}}</div>
+              <div>{{listing.sub_type}}</div>
+            </td>
+            <td>
+              <div>{{listing.line}}</div>
+              <div>{{listing.city}}, {{listing.state_code}} {{listing.postal_code}}</div>
+            </td>
           </tr>
           {% endfor %}
         </tbody>
