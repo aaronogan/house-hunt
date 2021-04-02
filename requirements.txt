@@ -6,4 +6,5 @@ numpy
 scikit-learn
 flask
 flask-mongoengine
+flask-debugtoolbar
 
