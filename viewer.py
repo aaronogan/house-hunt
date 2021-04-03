@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, jsonify, render_template, request
 from flask_mongoengine import MongoEngine, MongoEngineSessionInterface
 from flask_debugtoolbar import DebugToolbarExtension
 
@@ -47,10 +47,36 @@ class ForSale(db.Document):
     type = db.StringField()
     year_built = db.IntField()
 
-@app.route('/')
+class Coding(db.Document):
+    listing_id = db.StringField()
+    value = db.StringField()
+
+@app.route('/', methods=['GET'])
 def list():
     listings = ForSale.objects().all()
     return render_template('list.html', listings=listings)
+
+@app.route('/api/v1.0/coding/<string:listing_id>', methods=['GET', 'POST'])
+def coding(listing_id):
+    if (request.method == 'GET'):
+        return jsonify({
+            "status": 200,
+            "data": None,
+        }), 200
+
+    content = request.get_json(silent=True)
+    value = content['value']
+
+    coding = Coding(listing_id=listing_id, value=value)
+    coding.save()
+
+    return jsonify({
+        "status": 200,
+        "data": {
+            "listing_id": listing_id,
+            "value": value,
+        },
+    }), 200
 
 if __name__ == '__main__':
     app.run(debug=True)

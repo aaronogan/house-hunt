@@ -14,6 +14,34 @@
         cursor: pointer;
       }
     </style>
+
+    <script>
+      // /api/v1.0/coding/listing_id
+
+      async function ajax(url = '', method = 'POST', data = {}) {
+        const response = await fetch(url, {
+          method,
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        });
+        return response.json();
+      };
+
+      var API_EXAMPLES = 'api/v1.0/coding/${listing_id}';
+      function setExample(e) {
+        var listingId = e.target.getAttribute('data-listing-id');
+        var url = API_EXAMPLES.replace('${listing_id}', listingId);
+        var value = e.target.getAttribute('data-value') || null;
+        var data = { value }
+        ajax(url, 'POST', data).then(function(response) {
+          console.log(response);
+        });
+      };
+
+    </script>
+
   </head>
   <body>
     <div class="container-fluid">
@@ -36,9 +64,9 @@
             <th scope="row">
               <form>
                 <div class="list-group">
-                  <button type="button" class="list-group-item list-group-item-action active">Unset</button>
-                  <button type="button" class="list-group-item list-group-item-action">Ideal</button>
-                  <button type="button" class="list-group-item list-group-item-action">Not Ideal</button>
+                  <button type="button" onclick="javascript: setExample(event)" data-value="" data-listing-id="{{listing.listing_id}}" class="list-group-item list-group-item-action active">Unset</button>
+                  <button type="button" onclick="javascript: setExample(event)" data-value="ideal" data-listing-id="{{listing.listing_id}}" class="list-group-item list-group-item-action">Ideal</button>
+                  <button type="button" onclick="javascript: setExample(event)" data-value="not_ideal" data-listing-id="{{listing.listing_id}}" class="list-group-item list-group-item-action">Not Ideal</button>
                 </div>
               </form>
             </th>
