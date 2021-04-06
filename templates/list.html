@@ -14,36 +14,8 @@
         cursor: pointer;
       }
     </style>
-
-    <script>
-      // /api/v1.0/coding/listing_id
-
-      async function ajax(url = '', method = 'POST', data = {}) {
-        const response = await fetch(url, {
-          method,
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(data)
-        });
-        return response.json();
-      };
-
-      var API_EXAMPLES = 'api/v1.0/coding/${listing_id}';
-      function setExample(e) {
-        var listingId = e.target.getAttribute('data-listing-id');
-        var url = API_EXAMPLES.replace('${listing_id}', listingId);
-        var value = e.target.getAttribute('data-value') || null;
-        var data = { value }
-        ajax(url, 'POST', data).then(function(response) {
-          console.log(response);
-        });
-      };
-
-    </script>
-
   </head>
-  <body>
+  <body onload="javascript: viewModel.pageLoad()">
     <div class="container-fluid">
       <h1>house-hunt</h1>
       <table class="table table-bordered table-sm table-hover">
@@ -58,54 +30,51 @@
             <th scope="col">address</th>
           </tr>
         </thead>
-        <tbody>
-          {% for listing in listings %}
+        <tbody data-bind="foreach: listings">
           <tr>
             <th scope="row">
               <form>
                 <div class="list-group">
-                  <button type="button" onclick="javascript: setExample(event)" data-value="" data-listing-id="{{listing.listing_id}}" class="list-group-item list-group-item-action active">Unset</button>
-                  <button type="button" onclick="javascript: setExample(event)" data-value="ideal" data-listing-id="{{listing.listing_id}}" class="list-group-item list-group-item-action">Ideal</button>
-                  <button type="button" onclick="javascript: setExample(event)" data-value="not_ideal" data-listing-id="{{listing.listing_id}}" class="list-group-item list-group-item-action">Not Ideal</button>
+                  <button type="button" data-bind="click: $root.setCoding.bind($data, 'unset')" class="list-group-item list-group-item-action active">Unset</button>
+                  <button type="button" data-bind="click: $root.setCoding.bind($data, 'ideal')" class="list-group-item list-group-item-action">Ideal</button>
+                  <button type="button" data-bind="click: $root.setCoding.bind($data, 'not_ideal')" class="list-group-item list-group-item-action">Not Ideal</button>
                 </div>
               </form>
             </th>
-            <td>{{0}}</td>
+            <td>&nbsp;</td>
             <td>
-              <a href="https://realtor.com/realestateandhomes-detail/{{listing.permalink}}" target="_blank">
-                <img src="{{listing.href}}" width="375" height="225" />
+              <a data-bind="attr: { href: formattedPermalink }" target="_blank">
+                <img data-bind="attr: { src: href }" width="375" height="225" />
               </a>
             </td>
             <td>
               <ul class="list-group">
                 <li class="list-group-item">
-                  <a href="https://realtor.com/realestateandhomes-detail/{{listing.permalink}}" target="_blank">
-                    {{listing.listing_id}}
-                  </a>
+                  <a target="_blank" data-bind="attr: { href: formattedPermalink }, text: listingId"></a>
                 </li>
-                <li class="list-group-item">{{listing.list_date}}</li>
-                <li class="list-group-item">{{listing.list_price}}</li>
+                <li class="list-group-item" data-bind="text: listDate"></li>
+                <li class="list-group-item" data-bind="text: listPrice"></li>
               </ul>
             </td>
             <td>
               <ul class="list-group">
-                <li class="list-group-item">{{listing.beds}} bed</li>
-                <li class="list-group-item">{{listing.baths}} bath</li>
-                <li class="list-group-item">{{listing.garage}} garage</li>
-                <li class="list-group-item">{{listing.stories}} stories</li>
-                <li class="list-group-item">{{listing.sqft}} sqft</li>
+                <li class="list-group-item"><span data-bind="text: beds"></span> bed</li>
+                <li class="list-group-item"><span data-bind="text: baths"></span> bath</li>
+                <li class="list-group-item"><span data-bind="text: garage"></span> garage</li>
+                <li class="list-group-item"><span data-bind="text: stories"></span> stories</li>
+                <li class="list-group-item"><span data-bind="text: sqft"></span> sqft</li>
               </ul>
             </td>
             <td>
-              <div>{{listing.type}}</div>
-              <div>{{listing.sub_type}}</div>
+              <div data-bind="text: type"></div>
+              <div data-bind="text: subType"></div>
             </td>
             <td>
-              <div>{{listing.line}}</div>
-              <div>{{listing.city}}, {{listing.state_code}} {{listing.postal_code}}</div>
+              <div data-bind="text: address"></div>
+              <div data-bind="text: displayCityStatePostalCode"></div>
             </td>
+
           </tr>
-          {% endfor %}
         </tbody>
       </table>
     </div>
@@ -113,6 +82,134 @@
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.5.0/knockout-min.js"></script>
+
+    <script>
+      // TODO better organize scripts
+
+      // util
+      async function ajax(url = '', method = 'GET', data = null) {
+        const response = await fetch(url, {
+          method,
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: data === null ? null : JSON.stringify(data),
+        });
+        return response.json();
+      };
+
+      // app
+      const ENDPOINTS = {
+        codings: {
+          list: 'api/v1.0/codings/',
+          detail: 'api/v1.0/codings/${listing_id}',
+        },
+        listings: {
+          list: 'api/v1.0/listings/',
+        },
+      };
+
+      class ListingViewModel {
+        constructor(config) {
+          this.listingId = ko.observable(config.listing_id);
+          this.propertyId = ko.observable(config.property_id);
+          this.status = ko.observable(config.status);
+          this.listDate = ko.observable(config.list_date);
+          this.listPrice = ko.observable(config.list_price);
+          this.type = ko.observable(config.type);
+          this.subType = ko.observable(config.sub_type);
+          this.yearBuilt = ko.observable(config.year_built);
+          this.beds = ko.observable(config.beds);
+          this.baths = ko.observable(config.baths);
+          this.sqft = ko.observable(config.sqft);
+          this.stories = ko.observable(config.stories);
+          this.garage = ko.observable(config.garage);
+          this.address = ko.observable(config.line);
+          this.city = ko.observable(config.city);
+          this.state = ko.observable(config.state_code);
+          this.postalCode = ko.observable(config.postal_code);
+          this.href = ko.observable(config.href);
+          this.permalink = ko.observable(config.permalink);
+
+          this.formattedPermalink = ko.pureComputed(() => {
+            return 'https://realtor.com/realestateandhomes-detail/' + this.permalink();
+          });
+
+          this.displayCityStatePostalCode = ko.pureComputed(() => {
+            return this.city() + ' ' +  this.state() + ' ' + this.postalCode();
+          });
+        }
+      }
+
+      class CodingViewModel {
+        constructor(config) {
+          this.listingId = ko.observable(config.listing_id);
+          this.value = ko.observable(config.value);
+        }
+      }
+
+
+      class ViewModel {
+        constructor() {
+          this.listings = ko.observableArray([]);
+          this.codings = ko.observableArray([]);
+        }
+
+        pageLoad() {
+          this.loadListings();
+          this.loadCodings();
+        }
+
+        loadListings() {
+          const self = this;
+          ajax(ENDPOINTS.listings.list, 'GET').then(function(response) {
+            if (response.status !== 200) {
+              console.error(response);
+              return;
+            }
+
+            self.listings(_.map(response.data, listing => {
+              return new ListingViewModel(listing);
+            }));
+          });
+        }
+
+        loadCodings() {
+          const self = this;
+          ajax(ENDPOINTS.codings.list, 'GET').then(function(response) {
+            if (response.status !== 200) {
+              console.error(response);
+              return;
+            }
+            console.log('loadCodings', response.data.length);
+
+            self.codings(_.map(response.data, coding => {
+              return new CodingViewModel(coding);
+            }));
+          });
+        }
+
+        setCoding(value, self) {
+          const listingId = self.listingId();
+          const url = ENDPOINTS.codings.detail.replace('${listing_id}', listingId);
+          const data = { value };
+
+          ajax(url, 'POST', data).then(function(response) {
+            if (response.status !== 200) {
+              console.error(response);
+              return;
+            }
+            viewModel.loadCodings();
+          });
+        }
+      }
+
+      const viewModel = new ViewModel();
+      ko.applyBindings(viewModel)
+
+    </script>
   </body>
 </html>
 
