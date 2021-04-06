@@ -53,11 +53,26 @@ class Coding(db.Document):
 
 @app.route('/', methods=['GET'])
 def list():
-    listings = ForSale.objects().all()
-    return render_template('list.html', listings=listings)
+    return render_template('list.html')
 
-@app.route('/api/v1.0/coding/<string:listing_id>', methods=['GET', 'POST'])
-def coding(listing_id):
+@app.route('/api/v1.0/listings/', methods=['GET'])
+def listings():
+    listings = ForSale.objects().all()
+    return jsonify({
+        "status": 200,
+        "data": listings,
+    }), 200
+
+@app.route('/api/v1.0/codings/', methods=['GET'])
+def codings():
+    codings = Coding.objects().all()
+    return jsonify({
+        "status": 200,
+        "data": codings,
+    }), 200
+
+@app.route('/api/v1.0/codings/<string:listing_id>', methods=['GET', 'POST'])
+def codings_item(listing_id):
     if (request.method == 'GET'):
         return jsonify({
             "status": 200,
