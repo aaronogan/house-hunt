@@ -35,9 +35,9 @@
             <th scope="row">
               <form>
                 <div class="list-group">
-                  <button type="button" data-bind="click: $root.setCoding.bind($data, 'unset')" class="list-group-item list-group-item-action active">Unset</button>
-                  <button type="button" data-bind="click: $root.setCoding.bind($data, 'ideal')" class="list-group-item list-group-item-action">Ideal</button>
-                  <button type="button" data-bind="click: $root.setCoding.bind($data, 'not_ideal')" class="list-group-item list-group-item-action">Not Ideal</button>
+                  <button type="button" data-bind="css: { active: codingIsUnset }, click: $root.setCoding.bind($data, 'unset')" class="list-group-item list-group-item-action">Unset</button>
+                  <button type="button" data-bind="css: { active: codingIsIdeal }, click: $root.setCoding.bind($data, 'ideal')" class="list-group-item list-group-item-action">Ideal</button>
+                  <button type="button" data-bind="css: { active: codingIsNotIdeal }, click: $root.setCoding.bind($data, 'not_ideal')" class="list-group-item list-group-item-action">Not Ideal</button>
                 </div>
               </form>
             </th>
@@ -113,25 +113,25 @@
 
       class ListingViewModel {
         constructor(config) {
+          this.address = ko.observable(config.line);
+          this.baths = ko.observable(config.baths);
+          this.beds = ko.observable(config.beds);
+          this.city = ko.observable(config.city);
+          this.garage = ko.observable(config.garage);
+          this.href = ko.observable(config.href);
           this.listingId = ko.observable(config.listing_id);
-          this.propertyId = ko.observable(config.property_id);
-          this.status = ko.observable(config.status);
           this.listDate = ko.observable(config.list_date);
           this.listPrice = ko.observable(config.list_price);
-          this.type = ko.observable(config.type);
-          this.subType = ko.observable(config.sub_type);
-          this.yearBuilt = ko.observable(config.year_built);
-          this.beds = ko.observable(config.beds);
-          this.baths = ko.observable(config.baths);
-          this.sqft = ko.observable(config.sqft);
-          this.stories = ko.observable(config.stories);
-          this.garage = ko.observable(config.garage);
-          this.address = ko.observable(config.line);
-          this.city = ko.observable(config.city);
-          this.state = ko.observable(config.state_code);
-          this.postalCode = ko.observable(config.postal_code);
-          this.href = ko.observable(config.href);
           this.permalink = ko.observable(config.permalink);
+          this.postalCode = ko.observable(config.postal_code);
+          this.propertyId = ko.observable(config.property_id);
+          this.sqft = ko.observable(config.sqft);
+          this.state = ko.observable(config.state_code);
+          this.status = ko.observable(config.status);
+          this.stories = ko.observable(config.stories);
+          this.subType = ko.observable(config.sub_type);
+          this.type = ko.observable(config.type);
+          this.yearBuilt = ko.observable(config.year_built);
 
           this.formattedPermalink = ko.pureComputed(() => {
             return 'https://realtor.com/realestateandhomes-detail/' + this.permalink();
@@ -139,6 +139,34 @@
 
           this.displayCityStatePostalCode = ko.pureComputed(() => {
             return this.city() + ' ' +  this.state() + ' ' + this.postalCode();
+          });
+
+          this.coding = ko.pureComputed(() => {
+            const codings = viewModel.codings();
+            return _.find(codings, c => {
+              return c.listingId() === this.listingId();
+            });
+          });
+
+          this.codingIsUnset = ko.pureComputed(() => {
+            const coding = this.coding() || null;
+            return coding === null || coding.value() === 'unset';
+          });
+
+          this.codingIsIdeal = ko.pureComputed(() => {
+            const coding = this.coding() || null;
+            if (coding === null) {
+              return false;
+            }
+            return coding.value() === 'ideal';
+          });
+
+          this.codingIsNotIdeal = ko.pureComputed(() => {
+            const coding = this.coding() || null;
+            if (coding === null) {
+              return false;
+            }
+            return coding.value() === 'not_ideal';
           });
         }
       }
@@ -196,12 +224,30 @@
           const url = ENDPOINTS.codings.detail.replace('${listing_id}', listingId);
           const data = { value };
 
-          ajax(url, 'POST', data).then(function(response) {
+          // TODO clean up this callback hell
+
+          const createOrUpdateCall = response => {
             if (response.status !== 200) {
               console.error(response);
               return;
             }
             viewModel.loadCodings();
+          };
+
+          ajax(url, 'GET').then(getResponse => {
+            if (getResponse.status === 200) {
+              // update
+              ajax(url, 'PUT', data).then(createOrUpdateCall);
+              return;
+            }
+
+            if (getResponse.status === 404) {
+              // create
+              ajax(url, 'POST', data).then(createOrUpdateCall);
+              return;
+            }
+
+            console.error(getResponse);
           });
         }
       }
