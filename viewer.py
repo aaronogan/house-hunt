@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, render_template, request
-from flask_mongoengine import MongoEngine, MongoEngineSessionInterface
+from flask_mongoengine import MongoEngine, MongoEngineSessionInterface, DoesNotExist
 from flask_debugtoolbar import DebugToolbarExtension
 
 app = Flask(__name__)
@@ -61,6 +61,7 @@ def listings():
     return jsonify({
         "status": 200,
         "data": listings,
+        "errors": [],
     }), 200
 
 @app.route('/api/v1.0/codings/', methods=['GET'])
@@ -69,18 +70,23 @@ def codings():
     return jsonify({
         "status": 200,
         "data": codings,
+        "errors": [],
     }), 200
 
-@app.route('/api/v1.0/codings/<string:listing_id>', methods=['GET', 'POST'])
-def codings_item(listing_id):
-    if (request.method == 'GET'):
-        return jsonify({
-            "status": 200,
-            "data": None,
-        }), 200
-
+@app.route('/api/v1.0/codings/<string:listing_id>', methods=['POST'])
+def coding_create(listing_id):
     content = request.get_json(silent=True)
     value = content['value']
+
+    try:
+        existing = Coding.objects.get(listing_id=listing_id)
+        return jsonify({
+            "status": 500,
+            "data": None,
+            "errors": ["Coding already exists for listing"],
+        }), 500
+    except DoesNotExist:
+        pass
 
     coding = Coding(listing_id=listing_id, value=value)
     coding.save()
@@ -91,7 +97,48 @@ def codings_item(listing_id):
             "listing_id": listing_id,
             "value": value,
         },
+        "errors": [],
     }), 200
+
+@app.route('/api/v1.0/codings/<string:listing_id>', methods=['GET'])
+def coding_read(listing_id):
+    try:
+        coding = Coding.objects.get(listing_id=listing_id)
+        return jsonify({
+            "status": 200,
+            "data": coding,
+            "errors": [],
+        }), 200
+    except DoesNotExist:
+        return jsonify({
+            "status": 404,
+            "data": None,
+            "errors": ["Coding not found for listing"],
+        }), 404
+
+@app.route('/api/v1.0/codings/<string:listing_id>', methods=['PUT'])
+def coding_update(listing_id):
+    content = request.get_json(silent=True)
+    value = content['value']
+
+    try:
+        coding = Coding.objects.get(listing_id=listing_id)
+        coding.update(
+            set__value = value,
+        )
+
+        return jsonify({
+            "status": 200,
+            "data": coding,
+            "errors": [],
+        }), 200
+
+    except DoesNotExist:
+        return jsonify({
+            "status": 404,
+            "data": None,
+            "errors": ["Coding not found for listing"],
+        }), 404
 
 if __name__ == '__main__':
     app.run(debug=True)
